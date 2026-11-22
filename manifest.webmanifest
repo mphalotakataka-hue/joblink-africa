@@ -1,0 +1,10 @@
+{
+  "name": "JOBLINK AFRICA",
+  "short_name": "JOBLINK",
+  "description": "Build your CV and explore opportunities.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#102744",
+  "icons": []
+}

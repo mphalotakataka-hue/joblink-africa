@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102744">
+  <meta name="description" content="JOBLINK AFRICA helps job seekers build CVs and discover opportunities.">
+  <title>JOBLINK AFRICA</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-mark">JL</div>
+    <div><strong>JOBLINK AFRICA</strong><small>OPPORTUNITY STARTS HERE</small></div>
+    <button class="icon-btn" id="installBtn" hidden aria-label="Install app">＋</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">YOUR NEXT STEP STARTS HERE</p>
+      <h1>Build your CV.<br>Find your opportunity.</h1>
+      <p>Create a professional CV and explore job opportunities in one place.</p>
+      <div class="hero-actions">
+        <button class="primary" data-view="cv">Build my CV</button>
+        <button class="secondary" data-view="jobs">Explore jobs</button>
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="Main navigation">
+      <button class="tab active" data-view="home">Home</button>
+      <button class="tab" data-view="cv">My CV</button>
+      <button class="tab" data-view="jobs">Find jobs</button>
+      <button class="tab" data-view="employer">For employers</button>
+    </nav>
+
+    <section id="homeView" class="view">
+      <div class="section-heading"><div><p class="eyebrow">GET STARTED</p><h2>Your opportunity toolkit</h2></div></div>
+      <div class="feature-grid">
+        <button class="feature-card" data-view="cv"><span>📄</span><b>CV Builder</b><small>Create and print your CV</small></button>
+        <button class="feature-card" data-view="jobs"><span>🔎</span><b>Job Listings</b><small>Browse sample opportunities</small></button>
+        <button class="feature-card" data-view="employer"><span>🏢</span><b>Post a vacancy</b><small>Employers can add a listing</small></button>
+      </div>
+      <div class="notice"><b>Important safety note</b><p>Never pay someone to secure a job. Check the employer and vacancy independently before sharing personal information.</p></div>
+      <h3>Latest opportunities</h3>
+      <div id="homeJobs" class="job-list"></div>
+    </section>
+
+    <section id="cvView" class="view" hidden>
+      <div class="section-heading"><div><p class="eyebrow">YOUR PROFESSIONAL PROFILE</p><h2>CV Builder</h2></div></div>
+      <p class="muted">Fill in what you can. You can leave fields blank and update your CV later.</p>
+      <form id="cvForm" class="panel">
+        <label>Full name<input name="name" autocomplete="name" placeholder="e.g. Thabo Mokoena"></label>
+        <label>Professional headline<input name="headline" placeholder="e.g. Entry-level office administrator"></label>
+        <label>Email<input name="email" type="email" autocomplete="email" placeholder="you@example.com"></label>
+        <label>Phone number<input name="phone" type="tel" autocomplete="tel" placeholder="Your contact number"></label>
+        <label>City / province<input name="location" placeholder="e.g. Pretoria, Gauteng"></label>
+        <label>Profile summary<textarea name="summary" rows="3" placeholder="Write 2–3 sentences about your strengths and goals."></textarea></label>
+        <label>Education<textarea name="education" rows="3" placeholder="School/college, qualification and year"></textarea></label>
+        <label>Work experience<textarea name="experience" rows="4" placeholder="Role, employer, dates and responsibilities. Include volunteer work if relevant."></textarea></label>
+        <label>Skills<textarea name="skills" rows="3" placeholder="e.g. Communication, customer service, Microsoft Word"></textarea></label>
+        <label>References<textarea name="references" rows="2" placeholder="Available on request, or add references with their permission."></textarea></label>
+        <div class="button-row">
+          <button class="primary" type="submit">Save my CV</button>
+          <button class="secondary" type="button" id="printCv">Preview / Save PDF</button>
+        </div>
+        <p class="tiny muted">Your CV is saved on this device in this browser. This first version does not upload it to a server.</p>
+      </form>
+      <div id="cvStatus" class="status" role="status"></div>
+    </section>
+
+    <section id="jobsView" class="view" hidden>
+      <div class="section-heading"><div><p class="eyebrow">EXPLORE OPPORTUNITIES</p><h2>Find jobs</h2></div></div>
+      <input id="jobSearch" class="search" placeholder="Search title, company or location…" aria-label="Search jobs">
+      <p class="tiny muted">Listings marked “Demo” are examples for testing, not live vacancies. Confirm every real vacancy with the employer.</p>
+      <div id="jobsList" class="job-list"></div>
+    </section>
+
+    <section id="employerView" class="view" hidden>
+      <div class="section-heading"><div><p class="eyebrow">FOR BUSINESSES</p><h2>Submit a vacancy</h2></div></div>
+      <div class="notice"><b>Local demo mode</b><p>Vacancies submitted here are saved only on this device. They are not published to other users until a secure shared backend and review process are added.</p></div>
+      <form id="jobForm" class="panel">
+        <label>Job title<input name="title" required placeholder="e.g. Shop assistant"></label>
+        <label>Company / employer name<input name="company" required placeholder="Registered or trading name"></label>
+        <label>Location<input name="location" required placeholder="e.g. Pretoria, Gauteng"></label>
+        <label>Job type
+          <select name="type"><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Learnership</option><option>Internship</option><option>Temporary</option></select>
+        </label>
+        <label>Description and requirements<textarea name="description" required rows="5" placeholder="Responsibilities, requirements and closing date"></textarea></label>
+        <label>Application method<input name="apply" required placeholder="Official email, website or employer phone"></label>
+        <label class="check"><input type="checkbox" name="confirm" required> I confirm I am authorised to submit this vacancy and it is genuine.</label>
+        <button class="primary" type="submit">Save vacancy on this device</button>
+      </form>
+      <div id="jobStatus" class="status" role="status"></div>
+    </section>
+  </main>
+
+  <footer><b>JOBLINK AFRICA</b><p>Connecting people to opportunity.</p><small>Early prototype • Not an employment agency • Verify opportunities independently.</small></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
