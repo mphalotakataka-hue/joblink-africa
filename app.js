@@ -8,6 +8,10 @@ const demoJobs = [
   {id:"demo3",title:"Entry-level Call Centre Agent (Demo)",company:"Example Contact Centre",location:"Remote / South Africa",type:"Full-time",description:"Example listing for testing only. Clear communication and customer support skills.",apply:"Contact the employer through its official website.",demo:true}
 ];
 let customJobs = JSON.parse(localStorage.getItem(STORAGE.jobs) || "[]");
+let approvedJobs = [];
+const cfg = window.JOBLINK_CONFIG || {};
+const supabaseReady = !!(window.supabase && cfg.supabaseUrl && cfg.supabasePublishableKey && !cfg.supabaseUrl.includes("PASTE_") && !cfg.supabasePublishableKey.includes("PASTE_"));
+const db = supabaseReady ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabasePublishableKey) : null;
 let cvData = JSON.parse(localStorage.getItem(STORAGE.cv) || "{}");
 
 function toast(message) {
@@ -28,16 +32,16 @@ function renderJob(job) {
   return `<article class="job-card">
     <h3>${safe(job.title)}</h3><div><b>${safe(job.company)}</b></div>
     <div class="job-meta">📍 ${safe(job.location)} · ${safe(job.type)}</div>
-    ${job.demo?'<span class="tag">DEMO — NOT A LIVE VACANCY</span>':'<span class="tag">USER-SUBMITTED — NOT VERIFIED</span>'}
+    ${job.demo?'<span class="tag">DEMO — NOT A LIVE VACANCY</span>':job.verified?'<span class="tag">APPROVED LISTING</span>':'<span class="tag">USER-SUBMITTED — NOT VERIFIED</span>'}
     <p>${safe(job.description)}</p>
     <div class="job-meta"><b>How to apply:</b> ${safe(job.apply)}</div>
   </article>`;
 }
 function renderJobs() {
   const q=($("#jobSearch")?.value||"").toLowerCase();
-  const all=[...customJobs,...demoJobs].filter(j=>[j.title,j.company,j.location,j.type].join(" ").toLowerCase().includes(q));
+  const all=[...approvedJobs,...customJobs,...demoJobs].filter(j=>[j.title,j.company,j.location,j.type].join(" ").toLowerCase().includes(q));
   $("#jobsList").innerHTML=all.length?all.map(renderJob).join(""):"<p class='muted'>No matching listings. Try another search.</p>";
-  $("#homeJobs").innerHTML=[...customJobs,...demoJobs].slice(0,2).map(renderJob).join("");
+  $("#homeJobs").innerHTML=[...approvedJobs,...customJobs,...demoJobs].slice(0,2).map(renderJob).join("");
 }
 $("#jobSearch").addEventListener("input",renderJobs);
 
@@ -78,20 +82,44 @@ $("#printCv").addEventListener("click",()=>{
   win.document.close();
 });
 
-$("#jobForm").addEventListener("submit",e=>{
+$("#jobForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const data=Object.fromEntries(new FormData(e.currentTarget).entries());
-  delete data.confirm;
-  data.id="local-"+Date.now(); data.demo=false;
-  customJobs.unshift(data);
-  localStorage.setItem(STORAGE.jobs,JSON.stringify(customJobs));
-  e.currentTarget.reset();
-  $("#jobStatus").textContent="Vacancy saved on this device only. It is not yet public or verified.";
-  toast("Vacancy saved locally.");
-  renderJobs();
+  const application=data.apply.trim();
+  const isEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(application);
+  const isUrl=/^https?:\/\//i.test(application);
+  const location=data.location.trim();
+  const province=location.includes(",") ? location.split(",").pop().trim() : "Not specified";
+  const row={company_name:data.company.trim(),job_title:data.title.trim(),description:data.description.trim()+"\n\nHow to apply: "+application,province,location,employment_type:data.type||"Full-time",application_email:isEmail?application:null,application_url:isUrl?application:null,status:"pending"};
+  if(db){
+    $("#jobStatus").textContent="Submitting your vacancy…";
+    const {error}=await db.from("vacancies").insert(row);
+    if(error){console.error(error);$("#jobStatus").textContent="Could not submit. Please check your connection and try again.";toast("Submission failed.");return;}
+    e.currentTarget.reset();
+    $("#jobStatus").textContent="Thank you. Your vacancy was submitted for review and will appear only after approval.";
+    toast("Vacancy submitted for review.");
+  } else {
+    delete data.confirm;
+    data.id="local-"+Date.now(); data.demo=false;
+    customJobs.unshift(data);
+    localStorage.setItem(STORAGE.jobs,JSON.stringify(customJobs));
+    e.currentTarget.reset();
+    $("#jobStatus").textContent="Supabase is not configured yet. This test vacancy was saved on this device only.";
+    toast("Saved on this device only.");
+    renderJobs();
+  }
 });
 
+async function loadApprovedJobs(){
+  if(!db)return;
+  const {data,error}=await db.from("vacancies").select("id,company_name,job_title,description,province,location,employment_type,application_email,application_url").eq("status","approved").order("created_at",{ascending:false});
+  if(error){console.error(error);toast("Could not load shared vacancies.");return;}
+  approvedJobs=(data||[]).map(v=>({id:v.id,title:v.job_title,company:v.company_name,location:v.location+(v.province?", "+v.province:""),type:v.employment_type||"Full-time",description:v.description,apply:v.application_url||v.application_email||"See vacancy description",demo:false,verified:true}));
+  renderJobs();
+}
+
 fillCvForm(); renderJobs();
+loadApprovedJobs();
 if("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 }

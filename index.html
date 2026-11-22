@@ -78,7 +78,7 @@
 
     <section id="employerView" class="view" hidden>
       <div class="section-heading"><div><p class="eyebrow">FOR BUSINESSES</p><h2>Submit a vacancy</h2></div></div>
-      <div class="notice"><b>Local demo mode</b><p>Vacancies submitted here are saved only on this device. They are not published to other users until a secure shared backend and review process are added.</p></div>
+      <div class="notice"><b>Vacancy review</b><p>Submissions are sent to JOBLINK AFRICA for review. They will only appear in Find jobs after an administrator approves them. Do not submit personal or sensitive information.</p></div>
       <form id="jobForm" class="panel">
         <label>Job title<input name="title" required placeholder="e.g. Shop assistant"></label>
         <label>Company / employer name<input name="company" required placeholder="Registered or trading name"></label>
@@ -89,7 +89,7 @@
         <label>Description and requirements<textarea name="description" required rows="5" placeholder="Responsibilities, requirements and closing date"></textarea></label>
         <label>Application method<input name="apply" required placeholder="Official email, website or employer phone"></label>
         <label class="check"><input type="checkbox" name="confirm" required> I confirm I am authorised to submit this vacancy and it is genuine.</label>
-        <button class="primary" type="submit">Save vacancy on this device</button>
+        <button class="primary" type="submit">Submit vacancy for review</button>
       </form>
       <div id="jobStatus" class="status" role="status"></div>
     </section>
@@ -97,6 +97,8 @@
 
   <footer><b>JOBLINK AFRICA</b><p>Connecting people to opportunity.</p><small>Early prototype • Not an employment agency • Verify opportunities independently.</small></footer>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
